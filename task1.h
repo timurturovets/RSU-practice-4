@@ -1,9 +1,5 @@
 #pragma once
 
-#include <malloc.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 typedef enum sort_direction {
     ascending,
     descending
@@ -53,6 +49,15 @@ int employee_constructor (p_employee dest, unsigned int id, char *name, char *su
     strcpy(dest->name, name);
     strcpy(dest->surname, surname);
     dest->salary = salary;
+
+    return OK;
+}
+
+int free_employee (p_employee entity) {
+    if (entity == NULL) return INVALID_PARAMETER;
+
+    if (entity->name != NULL) free(entity->name);
+    if (entity->surname != NULL) free(entity->surname);
 
     return OK;
 }
@@ -133,8 +138,11 @@ int task_1(int argc, char** argv) {
         count++;
     }
 
-    if (sort_dir == ascending) qsort(employees, count, sizeof(employee), compare_asc);
-    else qsort(employees, count, sizeof(employee), compare_desc);
+    free(curr_name);
+    free(curr_surname);
+
+    qsort(employees, count, sizeof(employee),
+          sort_dir == ascending ? compare_asc : compare_desc);
 
     for (i = 0; i < count; i++) {
         fprintf(p_output_file, "%u %s %s %f\n",
@@ -143,6 +151,11 @@ int task_1(int argc, char** argv) {
 
     fclose(p_input_file);
     fclose(p_output_file);
+
+    for (i = 0; i < count; i++) {
+        free_employee(employees + i);
+    }
+    free(employees);
 
     printf("Success!");
     return OK;
@@ -156,8 +169,7 @@ int compare_asc(const void * item_1, const void * item_2) {
     if (p_emp1->salary < p_emp2->salary) return -1;
 
     int surname_cmpres = strcmp(p_emp1->surname, p_emp2->surname);
-    if (surname_cmpres > 0) return 1;
-    if (surname_cmpres < 0) return -1;
+    if (surname_cmpres != 0) return surname_cmpres;
 
     int name_cmpres = strcmp(p_emp1->name, p_emp2->name);
     if (name_cmpres > 0) return 1;
@@ -167,21 +179,7 @@ int compare_asc(const void * item_1, const void * item_2) {
 }
 
 int compare_desc(const void * item_1, const void * item_2) {
-    p_employee p_emp1 = (p_employee)item_1,
-            p_emp2 = (p_employee)item_2;
-
-    if (p_emp1->salary > p_emp2->salary) return -1;
-    if (p_emp1->salary < p_emp2->salary) return 1;
-
-    int surname_cmpres = strcmp(p_emp1->surname, p_emp2->surname);
-    if (surname_cmpres > 0) return -1;
-    if (surname_cmpres < 0) return 1;
-
-    int name_cmpres = strcmp(p_emp1->name, p_emp2->name);
-    if (name_cmpres > 0) return -1;
-    if (name_cmpres < 0) return 1;
-
-    return p_emp1->id > p_emp2->id;
+    return compare_asc(item_2, item_1);
 }
 
 // проверить все маллоки

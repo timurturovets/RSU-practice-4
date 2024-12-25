@@ -1,4 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
 #include <stdio.h>
+
 #include "auxiliary.h"
 
 #include "task1.h"
