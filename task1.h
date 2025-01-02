@@ -15,11 +15,7 @@ typedef struct Employee {
     double salary;
 } employee, *p_employee;
 
-int is_latin(char c) {
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}
-
-//  tak nazyvaemiy
+// tak nazyvaemiy
 int employee_constructor (p_employee dest, unsigned int id, char *name, char *surname, double salary) {
     if (dest == NULL || name == NULL || surname == NULL) return INVALID_PARAMETER;
 
@@ -94,30 +90,24 @@ int task_1(int argc, char** argv) {
         return INVALID_PARAMETER;
     }
 
-    employees = (p_employee) malloc(sizeof(employee) * 16);
+    employees = (p_employee) malloc(BUFSIZ * sizeof(employee));
 
     if (employees == NULL) {
-        fclose(p_input_file);
-        fclose(p_output_file);
+        govnochist('f', p_input_file, 'f', p_output_file, 'q', NULL);
 
         return MEMORY_ALLOCATION_ERROR;
     }
 
     curr_name = (char*) malloc(BUFSIZ * sizeof(char));
     if (curr_name == NULL) {
-        fclose(p_input_file);
-        fclose(p_output_file);
-        free(employees);
+        govnochist('f', p_input_file, 'f', p_output_file, 'm', employees, 'q', NULL);
 
         return MEMORY_ALLOCATION_ERROR;
     }
 
     curr_surname = (char*) malloc(BUFSIZ * sizeof(char));
     if (curr_surname == NULL) {
-        fclose(p_input_file);
-        fclose(p_output_file);
-        free(employees);
-        free(curr_name);
+        govnochist('f', p_input_file, 'f', p_output_file, 'm', employees, 'm', curr_name, 'q', NULL);
 
         return MEMORY_ALLOCATION_ERROR;
     }
@@ -129,6 +119,7 @@ int task_1(int argc, char** argv) {
 
         result_code = employee_constructor(p_employees++, curr_id, curr_name, curr_surname, curr_salary);
         if (result_code != OK) {
+            govnochist('f', p_input_file, 'f', p_output_file, 'm', employees, 'q', NULL);
             fclose(p_input_file);
             fclose(p_output_file);
             free(employees);
@@ -138,8 +129,7 @@ int task_1(int argc, char** argv) {
         count++;
     }
 
-    free(curr_name);
-    free(curr_surname);
+    govnochist('m', curr_name, 'm', curr_surname, 'q', NULL);
 
     qsort(employees, count, sizeof(employee),
           sort_dir == ascending ? compare_asc : compare_desc);
@@ -149,15 +139,14 @@ int task_1(int argc, char** argv) {
                 employees[i].id, employees[i].name, employees[i].surname, employees[i].salary);
     }
 
-    fclose(p_input_file);
-    fclose(p_output_file);
-
     for (i = 0; i < count; i++) {
         free_employee(employees + i);
     }
-    free(employees);
+
+    govnochist('f', p_input_file, 'f', p_output_file, 'm', employees, 'q', NULL);
 
     printf("Success!");
+
     return OK;
 }
 
@@ -181,8 +170,3 @@ int compare_asc(const void * item_1, const void * item_2) {
 int compare_desc(const void * item_1, const void * item_2) {
     return compare_asc(item_2, item_1);
 }
-
-// проверить все маллоки
-// проверить данные с командной строки
-// пацанская сортировка
-// запись в файл по людски

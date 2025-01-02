@@ -1,9 +1,55 @@
-
-
 typedef struct String {
     char *value;
     int len;
 } String, *p_string;
+
+int string_constructor(p_string dest, char *src);
+int clear_string(p_string str);
+int string_cmp(int *result, p_string str_1, p_string str_2);
+int string_cpy(p_string dest, p_string src);
+int make_str_from_source(p_string result, p_string src);
+int string_concat(p_string dest, p_string src);
+
+int task_2(int argc, char **argv) {
+    int i, result;
+
+    char *text_1 = "lorem ipsum",
+            *text_2 = "dolor sit amet",
+            *text_3 = "lorem ipsum",
+            *text_4 = "l1rem ipsum";
+
+    String str_1, str_2, str_3, str_4;
+    string_constructor(&str_1, text_1);
+    string_constructor(&str_2, text_2);
+    string_constructor(&str_3, text_3);
+    string_constructor(&str_4, text_4);
+
+    printf("Str: ");
+    for (i = 0; i < str_1.len; i++) {
+        printf("%c", str_1.value[i]);
+    }
+    printf("\nStr len: %d\n", str_1.len);
+
+    string_cmp(&result, &str_1, &str_2);
+    printf("Comparing result 1: %d\n", result);
+
+    string_cmp(&result, &str_1, &str_3);
+    printf("Comparing result 2: %d\n", result);
+
+    string_cmp(&result, &str_3, &str_4);
+    printf("Comparing result 3: %d\n", result);
+
+    clear_string(&str_2);
+    printf("String len after clearing: %d\n", str_2.len);
+
+    string_concat(&str_1, &str_4);
+    printf("After concat:");
+    for (i = 0; i < str_1.len; i++) {
+        printf("%c", str_1.value[i]);
+    }
+
+    return OK;
+}
 
 // tak nazyvaemiy
 int string_constructor(p_string dest, char *src) {
@@ -129,43 +175,10 @@ int string_concat(p_string dest, p_string src) {
     return OK;
 }
 
-int task_2(int argc, char** argv) {
-    int i, result;
-
-    char *text_1 = "lorem ipsum",
-         *text_2 = "dolor sit amet",
-         *text_3 = "lorem ipsum",
-         *text_4 = "l1rem ipsum";
-
-    String str_1, str_2, str_3, str_4;
-    string_constructor(&str_1, text_1);
-    string_constructor(&str_2, text_2);
-    string_constructor(&str_3, text_3);
-    string_constructor(&str_4, text_4);
-
-    printf("Str: ");
-    for (i = 0; i < str_1.len; i++) {
-        printf("%c", str_1.value[i]);
+void print_string(p_string str, char end) {
+    int i;
+    for (i = 0; i < str->len; i++) {
+        printf("%c", str->value[i]);
     }
-    printf("\nStr len: %d\n", str_1.len);
-
-    string_cmp(&result, &str_1, &str_2);
-    printf("Comparing result 1: %d\n", result);
-
-    string_cmp(&result, &str_1, &str_3);
-    printf("Comparing result 2: %d\n", result);
-
-    string_cmp(&result, &str_3, &str_4);
-    printf("Comparing result 3: %d\n", result);
-
-    clear_string(&str_2);
-    printf("String len after clearing: %d\n", str_2.len);
-
-    string_concat(&str_1, &str_4);
-    printf("After concat:");
-    for (i = 0; i < str_1.len; i++) {
-        printf("%c", str_1.value[i]);
-    }
-
-    return OK;
+    printf("%c", end);
 }
