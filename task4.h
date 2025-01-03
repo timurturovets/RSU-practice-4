@@ -26,11 +26,13 @@ int find_student_by(p_student array, size_t arr_len, p_student result, student_f
 int order_students_by(p_student array, size_t arr_len, student_field key);
 void print_student_to_console(p_student entity);
 int print_student_to_file(char *file_path, p_student entity);
-int print_higher_than_avg_GPAers(char *file_path, p_student array, size_t arr_len);
+int print_higher_than_avg_GPAers(char *file_path, p_student array, size_t arr_len, float overall_avg);
 int compare_students_by_id(const void *ent_1, const void *ent_2);
 int compare_students_by_surname(const void *ent_1, const void *ent_2);
 int compare_students_by_name(const void *ent_1, const void *ent_2);
 int compare_students_by_group(const void *ent_1, const void *ent_2);
+int get_avg_grade(p_student entity, float *result);
+int get_overall_average(p_student array, size_t arr_len, float *result);
 
 // tak nazyvaemiy
 int student_constructor(p_student result, unsigned int id,
@@ -157,6 +159,7 @@ int task_4(int argc, char **argv) {
 
     char *user_value;
     int i, count, user_choice, result_code, search_succeeded;
+    float overall_avg_grade;
     Student search_result;
     p_student array, p_search_result = &search_result;
     student_field keys[4] = { id, surname, name, group };
@@ -179,13 +182,14 @@ int task_4(int argc, char **argv) {
         return result_code;
     }
 
+    get_overall_average(array, count, &overall_avg_grade);
+
+    print_menu();
     do {
-        print_menu();
-        printf("Choose option: ");
+        printf("\nChoose option: ");
         scanf("%d", &user_choice);
         if (user_choice >= 1 && user_choice <= 4) {
-
-            printf("\n\nInput key: ");
+            printf("Input key: ");
             scanf("%s", user_value);
 
             result_code = find_student_by(array, count, p_search_result,
@@ -204,7 +208,17 @@ int task_4(int argc, char **argv) {
             printf("Found a record: \n");
             print_student_to_console(p_search_result);
         }
-        if (user_choice == 9) {
+
+        else if (user_choice >= 5 && user_choice <= 8) {
+            result_code = order_students_by(array, count, keys[user_choice - 5]);
+            if (result_code != OK) {
+                print_error(result_code);
+                continue;
+            }
+            printf("Success!\n");
+        }
+
+        else if (user_choice == 9) {
             result_code = print_student_to_file(*argv, p_search_result);
             if (result_code != OK) {
                 print_error(result_code);
@@ -212,6 +226,17 @@ int task_4(int argc, char **argv) {
             }
             printf("Success!\n");
         }
+
+        else if (user_choice == 10) {
+            result_code = print_higher_than_avg_GPAers(*argv, array, count, overall_avg_grade);
+            if (result_code != OK) {
+                print_error(result_code);
+                continue;
+            }
+            printf("Success!\n");
+        }
+
+        else printf("Invalid choice.\n");
     } while(user_choice != 0);
 
     printf("Success!");
@@ -291,7 +316,7 @@ int find_student_by(p_student array, size_t arr_len, p_student result, student_f
             return INVALID_PARAMETER;
     }
 
-    return INVALID_PARAMETER;
+    return OK;
 }
 
 int order_students_by(p_student array, size_t arr_len, student_field key) {
@@ -325,32 +350,48 @@ void print_student_to_console(p_student entity) {
         printf("%d%s", entity->grades[i], i == entity->grades_count - 1 ? "\n" : ", ");
     }
 }
+
 int print_student_to_file(char *file_path, p_student entity) {
     FILE* p_file = fopen(file_path, "a");
     if (p_file == NULL) return INVALID_PARAMETER;
 
     int i;
+    float avg_grade;
 
     fprintf(p_file, "Student named ");
     fprint_string(p_file, &entity->name, ' ');
     fprint_string(p_file, &entity->surname, '\n');
 
-    fprintf(p_file, "ID: %d", entity->id);
     fprintf(p_file, "Academic group: ");
     fprint_string(p_file, &entity->academic_group, '\n');
 
     fprintf(p_file, "Grades: ");
     for (i = 0; i < entity->grades_count; i++) {
-        fprintf(p_file, "%d%s", entity->grades[i], i == entity->grades_count - 1 ? "\n" : ", ");
+        fprintf(p_file, "%d%s", entity->grades[i], i == entity->grades_count - 1 ? "; " : ", ");
     }
+
+    get_avg_grade(entity, &avg_grade);
+    fprintf(p_file, "Average: %f\n", avg_grade);
 
     fclose(p_file);
 
     return OK;
 }
 
-int print_higher_than_avg_GPAers(char *file_path, p_student array, size_t arr_len) {
+int print_higher_than_avg_GPAers(char *file_path, p_student array, size_t arr_len, float overall_avg) {
+    if (file_path == NULL || array == NULL) return INVALID_PARAMETER;
 
+    int i;
+    float curr_avg;
+
+    for (i = 0; i < arr_len; i++) {
+        get_avg_grade(array + i, &curr_avg);
+        if (curr_avg > overall_avg) {
+            print_student_to_file(file_path, array + i);
+        }
+    }
+
+    return OK;
 }
 
 int compare_students_by_id(const void *ent_1, const void *ent_2) {
@@ -383,4 +424,33 @@ int compare_students_by_group(const void *ent_1, const void *ent_2) {
     int result;
     string_cmp(&result, &value_1->academic_group, &value_2->academic_group);
     return result;
+}
+
+int get_avg_grade(p_student entity, float *result) {
+    if (entity == NULL || result == NULL) return INVALID_PARAMETER;
+
+    int i, sum;
+    for (i = 0, sum = 0; i < entity->grades_count; i++) {
+        sum += entity->grades[i];
+    }
+
+    *result = sum / (float)entity->grades_count;
+
+    return OK;
+}
+
+int get_overall_average(p_student array, size_t arr_len, float *result) {
+    if (array == NULL || result == NULL) return INVALID_PARAMETER;
+
+    size_t i;
+    float avg = 0.0f, curr_avg;
+    for (i = 0; i < arr_len; i++) {
+        get_avg_grade(array + i, &curr_avg);
+        avg += curr_avg;
+    }
+
+    avg /= (float)arr_len;
+    *result = avg;
+
+    return OK;
 }
