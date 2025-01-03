@@ -181,3 +181,13 @@ void print_string(p_string str, char end) {
     }
     printf("%c", end);
 }
+
+void fprint_string(FILE* dest, p_string str, char end) {
+    if (dest == NULL) return;
+
+    int i;
+    for (i = 0; i < str->len; i++) {
+        fprintf(dest, "%c", str->value[i]);
+    }
+    fprintf(dest, "%c", end);
+}
