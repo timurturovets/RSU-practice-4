@@ -101,7 +101,6 @@ int string_cmp(int *result, p_string str_1, p_string str_2) {
     for (i = 0, len = str_1->len; i < len; i++) {
         if (str_1->value[i] > str_2->value[i]) {
             *result = 1;
-
             return OK;
         } else if (str_1->value[i] < str_2->value[i]) {
             *result = -1;

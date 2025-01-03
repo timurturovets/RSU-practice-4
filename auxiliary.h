@@ -47,3 +47,22 @@ int is_every_char_latin(char* str) {
     }
     return 1;
 }
+
+void print_error(int error_code) {
+    switch (error_code) {
+        case INVALID_INPUT:
+            PRINT_INVALID_INPUT_MESSAGE();
+            break;
+        case INVALID_PARAMETER:
+            PRINT_INVALID_PARAMETER_MESSAGE();
+            break;
+        case MEMORY_ALLOCATION_ERROR:
+            PRINT_MEMORY_ALLOCATION_ERROR();
+            break;
+        case ERR:
+            PRINT_ERROR_MESSAGE();
+            break;
+        default:
+            break;
+    }
+}
