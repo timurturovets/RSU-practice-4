@@ -22,6 +22,7 @@ typedef struct Post {
     p_mail parcels;
 } Post, *p_post;
 
+#pragma region constructors
 int address_constructor(p_address result, char* city, char* street, unsigned int house,
                         char* building, unsigned int apartment, char* receiver_index) {
     if (city == NULL || street == NULL || building == NULL || receiver_index == NULL) return INVALID_PARAMETER;
@@ -51,6 +52,15 @@ int address_constructor(p_address result, char* city, char* street, unsigned int
 
     return OK;
 }
+
+int mail_constructor() {
+
+}
+
+int post_constructor() {
+
+}
+#pragma endregion
 int task_3(int argc, char **argv) {
 
 }

@@ -38,10 +38,11 @@ int get_overall_average(p_student array, size_t arr_len, float *result);
 int student_constructor(p_student result, unsigned int id,
                         char *name, char *surname, char *group,
                         unsigned char *grades, size_t grades_count) {
+    String str_name, str_surname, str_group;
+    Student entity;
+
     if (name == NULL || surname == NULL || group == NULL || grades == NULL) return INVALID_PARAMETER;
     if (strlen(name) == 0 || strlen(surname) == 0 || strlen(group) == 0 || grades_count == 0) return INVALID_PARAMETER;
-
-    Student entity;
 
     entity.grades = (unsigned char *) malloc(sizeof(unsigned char) * grades_count);
     if (entity.grades == NULL) return MEMORY_ALLOCATION_ERROR;
@@ -53,7 +54,6 @@ int student_constructor(p_student result, unsigned int id,
         return INVALID_INPUT;
     }
 
-    String str_name, str_surname, str_group;
     string_constructor(&str_name, name);
     string_constructor(&str_surname, surname);
     string_constructor(&str_group, group);
@@ -67,6 +67,7 @@ int student_constructor(p_student result, unsigned int id,
     entity.is_initialized = 1;
 
     *result = entity;
+
     return OK;
 }
 
@@ -83,15 +84,17 @@ int free_student(p_student entity) {
 }
 
 int read_students_from_file(char const *file_path, p_student *result, int *count) {
-    if (file_path == NULL || count == NULL) return INVALID_PARAMETER;
-
+    FILE *p_file;
     unsigned int curr_id;
     char curr_c, *curr_name, *curr_surname, *curr_group;
     int i, result_code;
     unsigned char *curr_grades;
     p_student p_res;
 
-    FILE *p_file = fopen(file_path, "r");
+    if (file_path == NULL || count == NULL) return INVALID_PARAMETER;
+
+    p_file = fopen(file_path, "r");
+
     if (p_file == NULL) return INVALID_INPUT;
 
     curr_name = (char*) malloc(BUFSIZ * sizeof(char));
@@ -146,23 +149,25 @@ int read_students_from_file(char const *file_path, p_student *result, int *count
         }
     }
 
+    fclose(p_file);
+
     return OK;
 }
 
 int task_4(int argc, char **argv) {
+    char *user_value;
+    int count, user_choice, result_code, search_succeeded;
+    float overall_avg_grade;
+    Student search_result;
+    p_student array, p_search_result = &search_result;
+    student_field keys[4] = { id, surname, name, group };
+
     if (argc < 3) {
         PRINT_INVALID_INPUT_MESSAGE();
         return INVALID_INPUT;
     }
 
     argv++;
-
-    char *user_value;
-    int i, count, user_choice, result_code, search_succeeded;
-    float overall_avg_grade;
-    Student search_result;
-    p_student array, p_search_result = &search_result;
-    student_field keys[4] = { id, surname, name, group };
 
     if ((array = (p_student) malloc(BUFSIZ * sizeof(Student))) == NULL) {
         PRINT_MEMORY_ALLOCATION_ERROR();
@@ -397,9 +402,7 @@ int print_higher_than_avg_GPAers(char *file_path, p_student array, size_t arr_le
 int compare_students_by_id(const void *ent_1, const void *ent_2) {
     p_student value_1 = (p_student)ent_1, value_2 = (p_student)ent_2;
 
-    if (value_1->id > value_2->id) return 1;
-    if (value_1->id < value_2->id) return -1;
-    return 0;
+    return value_1->id - value_2->id;
 }
 
 int compare_students_by_surname(const void *ent_1, const void *ent_2) {
