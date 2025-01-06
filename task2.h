@@ -14,6 +14,7 @@ int string_cmp(int *result, p_string str_1, p_string str_2);
 int string_cpy(p_string dest, p_string src);
 int make_str_from_source(p_string result, p_string src);
 int string_concat(p_string dest, p_string src);
+void deep_copy(char *dest, char *src, size_t start, size_t end, size_t manip_ind_1, size_t manip_ind_2);
 
 int task_2(int argc, char **argv) {
     int i, result;
@@ -69,9 +70,7 @@ int string_constructor(p_string dest, char *src) {
     inner_array = (char*) malloc((len-1) * sizeof(char));
     if (inner_array == NULL && len != 0) return MEMORY_ALLOCATION_ERROR;
 
-    for (i = 0; i < len; i++) {
-        inner_array[i] = src[i];
-    }
+    deep_copy(inner_array, src, 0, len, 0, 0);
 
     entity.value = inner_array;
     entity.len = len;
@@ -118,10 +117,7 @@ int string_cpy(p_string dest, p_string src) {
     dest->value = (char*) malloc(src->len * sizeof(char));
     if (dest->value == NULL) return MEMORY_ALLOCATION_ERROR;
 
-    for (i = 0; i < len; i++) {
-        dest->value[i] = src->value[i];
-    }
-
+    deep_copy(dest->value, src->value, 0, len, 0, 0);
     dest->len = len;
 
     return OK;
@@ -138,10 +134,7 @@ int make_str_from_source(p_string result, p_string src) {
 
     new_str.len = len;
 
-    for (i = 0; i < len ; i++) {
-        new_str.value[i] = src->value[i];
-    }
-
+    deep_copy(new_str.value, src->value, 0, len, 0, 0);
     *result = new_str;
 
     return OK;
@@ -162,10 +155,7 @@ int string_concat(p_string dest, p_string src) {
         return MEMORY_ALLOCATION_ERROR;
     }
 
-    for (i = dest->len; i < new_len; i++) {
-        dest->value[i] = src->value[i - dest->len];
-    }
-
+    deep_copy(dest->value, src->value, dest->len, new_len, 0, -dest->len);
     dest->len = new_len;
 
     return OK;
@@ -191,4 +181,11 @@ void fprint_string(FILE* dest, p_string str, char end) {
     }
 
     fprintf(dest, "%c", end);
+}
+
+void deep_copy(char *dest, char *src, size_t start, size_t end, size_t manip_ind_1, size_t manip_ind_2) {
+    size_t i;
+    for (i = start; i < end; i++) {
+        dest[i + manip_ind_1] = src[i + manip_ind_2];
+    }
 }
