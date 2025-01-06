@@ -1,4 +1,7 @@
+#pragma once
+
 #include <stdarg.h>
+#include <ctype.h>
 
 #define OK 0
 #define ERR (-1)
@@ -12,9 +15,9 @@
 #define PRINT_MEMORY_ALLOCATION_ERROR() printf("Error: couldn't allocate memory. Restarting the program may help.")
 
 int govnochist(int flag, ...) {
+    va_list p_args;
     if (flag != 'f' && flag != 'm') return INVALID_PARAMETER;
 
-    va_list p_args;
     va_start(p_args, flag);
 
     while (1) {
@@ -36,6 +39,18 @@ int govnochist(int flag, ...) {
     }
 }
 
+int ctod(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    else if (c >= 'A' && c <= 'Z') return 10 + (c - 'A');
+    else return -1;
+}
+
+char dtoc(int digit) {
+    if (digit >= 0 && digit <= 9) return '0' + digit;
+    else if (digit >= 10 && digit <= 35) return 'A' + (digit - 10);
+    else return -1;
+}
+
 int is_latin(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
@@ -44,6 +59,27 @@ int is_every_char_latin(char* str) {
     size_t i, len;
     for (i = 0, len = strlen(str); i < len; i++) {
         if (!is_latin(str[i])) return 0;
+    }
+    return 1;
+}
+
+int is_every_char_digit(char *str) {
+    int i, len;
+    for (i = 0, len = strlen(str); i < len; i++) {
+        if (!isdigit(str[i])) return 0;
+    }
+    return 1;
+}
+
+int is_valid_datetime_str(char *str) {
+    // 0123456789 10 11 12 13 14 15 16 17 18
+    // dd:MM:yyyy h  h  :  m   m  :  s s
+    int d, M, y, h, m, s;
+    if (strlen(str) != 19 || str[2] != ':' || str[5] != ':' || str[13] != ':' || str[16] != ':') return 0;
+
+    // validate days
+    if (ctod(str[0]) != '0') {
+
     }
     return 1;
 }

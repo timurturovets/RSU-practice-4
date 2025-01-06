@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -33,6 +35,11 @@ int compare_students_by_name(const void *ent_1, const void *ent_2);
 int compare_students_by_group(const void *ent_1, const void *ent_2);
 int get_avg_grade(p_student entity, float *result);
 int get_overall_average(p_student array, size_t arr_len, float *result);
+int find_some_thing(p_student collection, size_t arr_len, void*val, int(*pred)(Student, void*));
+int check_id(Student item, void* value);
+int check_surname(Student item, void* value);
+int check_name(Student item, void* value);
+int check_group(Student item, void* value);
 
 // tak nazyvaemiy
 int student_constructor(p_student result, unsigned int id,
@@ -241,6 +248,8 @@ int task_4(int argc, char **argv) {
             printf("Success!\n");
         }
 
+        else if (user_choice == 0) break;
+
         else printf("Invalid choice.\n");
     } while(user_choice != 0);
 
@@ -257,6 +266,29 @@ void print_menu() {
     printf("10. Print students with above average GPA.\n");
 }
 
+int find_student_by(p_student array, size_t arr_len, p_student result, student_field key, void *value, int *is_found) {
+    int result_index;
+
+    int (*check_collection[4])(Student, void*) = {
+            check_id,
+            check_name,
+            check_surname,
+            check_group
+    };
+
+    if (array == NULL || result == NULL || value == NULL) return INVALID_PARAMETER;
+
+    *is_found = (result_index = find_some_thing(array, arr_len, value, check_collection[key])) > -1;
+
+    if(*is_found)
+    {
+        *result = array[result_index];
+        return OK;
+    }
+    else return INVALID_PARAMETER;
+}
+
+/* deprecated
 int find_student_by(p_student array, size_t arr_len, p_student result, student_field key, void *value, int *is_found) {
     if (array == NULL || result == NULL || value == NULL) return INVALID_PARAMETER;
 
@@ -323,7 +355,7 @@ int find_student_by(p_student array, size_t arr_len, p_student result, student_f
 
     return OK;
 }
-
+*/
 int order_students_by(p_student array, size_t arr_len, student_field key) {
     if (array == NULL) return INVALID_PARAMETER;
 
@@ -456,4 +488,58 @@ int get_overall_average(p_student array, size_t arr_len, float *result) {
     *result = avg;
 
     return OK;
+}
+
+int find_some_thing(p_student collection, size_t arr_len, void*val, int(*pred)(Student, void*))
+{
+    int i = 0;
+
+    while (i < arr_len)
+    {
+        if (pred(collection[i], val))
+            return i;
+
+        ++i;
+    }
+
+    return -1;
+
+}
+
+int check_id(Student item, void* value)
+{
+    return item.id == atoi((char*)value);
+}
+
+int check_surname(Student item, void* value)
+{
+    int res = 0;
+    String str_value;
+
+    string_constructor(&str_value, (char*)value);
+    string_cmp(&res, &item.surname, &str_value);
+
+    return 0==res;
+}
+
+int check_name(Student item, void* value)
+{
+    int res = 0;
+    String str_value;
+
+    string_constructor(&str_value, (char*)value);
+    string_cmp(&res, &item.name, &str_value);
+
+    return 0==res;
+}
+
+int check_group(Student item, void* value)
+{
+    int res = 0;
+    String str_value;
+
+    string_constructor(&str_value, (char*)value);
+    string_cmp(&res, &item.academic_group, &str_value);
+
+    return 0==res;
 }

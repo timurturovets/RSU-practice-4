@@ -1,3 +1,8 @@
+#pragma once
+
+
+#include "auxiliary.h"
+
 typedef struct String {
     char *value;
     int len;
