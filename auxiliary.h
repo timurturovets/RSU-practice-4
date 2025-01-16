@@ -51,6 +51,26 @@ char dtoc(int digit) {
     else return -1;
 }
 
+int concat_chars(char** res, ...) {
+    char *p_res, curr;
+    va_list p_args;
+
+    if (res == NULL) return INVALID_PARAMETER;
+    if ((*res = (char*) malloc(BUFSIZ * sizeof(char))) == NULL) return MEMORY_ALLOCATION_ERROR;
+
+    p_res = *res;
+    va_start(p_args, res);
+    while (1) {
+        curr = va_arg(p_args, int);
+        if (curr == '\0') break;
+        *p_res++ = curr;
+    }
+
+    *p_res = '\0';
+
+    return OK;
+}
+
 int is_latin(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
@@ -72,15 +92,35 @@ int is_every_char_digit(char *str) {
 }
 
 int is_valid_datetime_str(char *str) {
-    // 0123456789 10 11 12 13 14 15 16 17 18
-    // dd:MM:yyyy h  h  :  m   m  :  s s
-    int d, M, y, h, m, s;
+    int i, d, M, y, h, m, s;
+    char *day, *month, *year, *hour, *minute, *second;
+
     if (strlen(str) != 19 || str[2] != ':' || str[5] != ':' || str[13] != ':' || str[16] != ':') return 0;
 
-    // validate days
-    if (ctod(str[0]) != '0') {
+    concat_chars(&day, str[0], str[1], '\0');
+    concat_chars(&month, str[3], str[4], '\0');
+    concat_chars(&year, str[6], str[7], str[8], str[9], '\0');
+    concat_chars(&hour, str[11], str[12], '\0');
+    concat_chars(&minute, str[14], str[15], '\0');
+    concat_chars(&second, str[17], str[18], '\0');
 
-    }
+    d = atoi(day);
+    M = atoi(month);
+    y = atoi(year);
+    h = atoi(hour);
+    m = atoi(minute);
+    s = atoi(second);
+
+    if (M < 1 || M > 12) return 0;
+    if (y < 1970 || y > 2025) return 0;
+    if (h < 0 || h > 23) return 0;
+    if (m < 0 || m > 59) return 0;
+    if (s < 0 || s > 59) return 0;
+
+    if (d < 1 || d > 31
+            || (((M >= 9 && M % 2 == 1) || (M < 8 && M % 2 == 0)) && d > 30)
+            || (M == 2 && ((y % 4 == 0 && d > 29) || (y % 4 != 0 && d > 28)))) return 0;
+
     return 1;
 }
 
