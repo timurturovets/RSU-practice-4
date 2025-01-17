@@ -110,7 +110,7 @@ int task_3(int argc, char **argv) {
     Mail mail_1, mail_2, mail_3;
     p_mail parcels, p_parcels, post_parcels, found_mail;
     p_post p_post;
-    int user_choice, is_found, is_successful, i;
+    int user_choice, is_found, is_successful, flag, i;
     int const PARCELS_LEN = 3;
     char *search_key;
 
@@ -151,7 +151,6 @@ int task_3(int argc, char **argv) {
     }
 
     post_init(&post, &postal_address, post_parcels, PARCELS_LEN);
-    printf("post alright");
 
     p_parcels = parcels;
     *p_parcels++ = mail_1;
@@ -205,6 +204,27 @@ int task_3(int argc, char **argv) {
 
                 printf("Found a record!\n");
                 print_mail_info(found_mail);
+                break;
+            case 4:
+                printf("Every mail sent: \n");
+                for (i = 0; i < PARCELS_LEN; i++) {
+                    printf("\n%d. ", i + 1);
+                    print_mail_info(&parcels[i]);
+                }
+                break;
+            case 5:
+                flag = 0;
+
+                printf("Every delivered mail: \n");
+                for (i = 0; i < PARCELS_LEN; i++) {
+                    if (post.parcels[i] == NULL) continue;
+
+                    flag = 1;
+                    printf("\n%d.", i + 1);
+                    print_mail_info(post.parcels[i]);
+                }
+                if (!flag) printf("No mail has been delivered yet.");
+                printf("\n");
                 break;
         }
     } while (user_choice != 0);
