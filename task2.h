@@ -164,6 +164,8 @@ int string_concat(p_string dest, p_string src) {
 void print_string(p_string str, char end) {
     int i;
 
+    if (str == NULL) return;
+
     for (i = 0; i < str->len; i++) {
         printf("%c", str->value[i]);
     }
