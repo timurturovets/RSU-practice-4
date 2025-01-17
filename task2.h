@@ -191,3 +191,19 @@ void deep_copy(char *dest, char *src, size_t start, size_t end, size_t manip_ind
         dest[i + manip_ind_1] = src[i + manip_ind_2];
     }
 }
+
+char* get_c_string_from_string(p_string str) {
+    char *result;
+    int i;
+
+    result = (char*) malloc(sizeof(char) * (str->len + 1));
+    if (result == NULL) return NULL;
+
+    for (i = 0; i < str->len; i++) {
+        result[i] = str->value[i];
+    }
+
+    result[i] = '\0';
+
+    return result;
+}

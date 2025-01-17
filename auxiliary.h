@@ -2,6 +2,7 @@
 
 #include <stdarg.h>
 #include <ctype.h>
+#include <time.h>
 
 #define OK 0
 #define ERR (-1)
@@ -122,6 +123,36 @@ int is_valid_datetime_str(char *str) {
             || (M == 2 && ((y % 4 == 0 && d > 29) || (y % 4 != 0 && d > 28)))) return 0;
 
     return 1;
+}
+
+int has_datetime_passed(char *datetime) {
+    char *day, *month, *year, *hour, *minute, *second;
+    int i, d, M, y, h, m, s;
+    time_t time1970, cmp_time;
+    struct tm data_tm;
+
+    time(&time1970);
+
+    concat_chars(&day, datetime[0], datetime[1], '\0');
+    concat_chars(&month, datetime[3], datetime[4], '\0');
+    concat_chars(&year, datetime[6], datetime[7], datetime[8], datetime[9], '\0');
+    concat_chars(&hour, datetime[11], datetime[12], '\0');
+    concat_chars(&minute, datetime[14], datetime[15], '\0');
+    concat_chars(&second, datetime[17], datetime[18], '\0');
+
+    data_tm.tm_mday = atoi(day);
+    data_tm.tm_mon = atoi(month) - 1;
+    data_tm.tm_year = atoi(year) - 1900;
+    data_tm.tm_hour = atoi(hour);
+    data_tm.tm_min = atoi(minute);
+    data_tm.tm_sec = atoi(second);
+
+    cmp_time = mktime(&data_tm);
+
+    if (cmp_time < time1970) return 1;
+    else if (cmp_time > time1970) return -1;
+
+    return 0;
 }
 
 void print_error(int error_code) {

@@ -110,7 +110,7 @@ int task_3(int argc, char **argv) {
     Mail mail_1, mail_2, mail_3;
     p_mail parcels, p_parcels, post_parcels, found_mail;
     p_post p_post;
-    int user_choice, is_found, is_successful, flag, i;
+    int user_choice, is_found, is_successful, flag, outer_flag, cmp_result, i, j;
     int const PARCELS_LEN = 3;
     char *search_key;
 
@@ -226,10 +226,37 @@ int task_3(int argc, char **argv) {
                 if (!flag) printf("No mail has been delivered yet.");
                 printf("\n");
                 break;
+            case 6:
+                outer_flag = 0;
+
+                printf("Every overdue mail: \n");
+                for (i = 0; i < PARCELS_LEN; i++) {
+                    if (!has_datetime_passed(get_c_string_from_string(&parcels[i].delivery_time))) continue;
+
+                    flag = 0;
+                    for (j = 0; j < PARCELS_LEN; j++) {
+                        if (post.parcels[j] == NULL) continue;
+                        string_cmp(&cmp_result, &parcels[i].delivery_time, &post.parcels[j]->delivery_time);
+
+                        if (cmp_result == 0) {
+                            flag = 1;
+                            break;
+                        }
+                    }
+
+                    if (!flag) {
+                        outer_flag = 1;
+                        print_mail_info(parcels + i);
+                    }
+                }
+                if (!outer_flag) printf("No mails are overdue.");
+                printf("\n");
+
+                break;
         }
     } while (user_choice != 0);
 
-    printf("Success!");
+    printf("Thanks! Bye!");
 
     return OK;
 }
@@ -249,7 +276,8 @@ int search_mail(p_mail *result, p_mail parcels, char *key, size_t parcels_len, i
     string_constructor(&key_str, key);
 
     for (i = 0; i < parcels_len; i++) {
-        if (string_cmp(&cmp_result, &parcels[i].postal_id, &key_str) == 0) {
+        string_cmp(&cmp_result, &parcels[i].postal_id, &key_str);
+        if (cmp_result == 0) {
             *result = &parcels[i];
             *is_found = 1;
             return OK;
